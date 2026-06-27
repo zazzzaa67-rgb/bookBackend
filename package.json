@@ -1,0 +1,20 @@
+{
+  "name": "book-watchlist",
+  "version": "1.0.0",
+  "description": "it is a book watchlist to find your favorite book",
+  "keywords": [
+    "Book",
+    "readlist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "defuelt"
+  },
+  "license": "ISC",
+  "author": "Ahmed Mohamed",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "test": "defualt"
+  }
+}
