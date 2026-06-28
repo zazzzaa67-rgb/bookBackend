@@ -75,8 +75,8 @@ app.post('/api/chat' , async (req , res)=>{
     }
 
     )
-    const books = JSON.parse(response.choices[0].message.content)
-    res.json({replay : books})
+    
+    res.json(JSON.parse(response.choices[0].message.content))
     
 }catch(err){
     console.error(err)
