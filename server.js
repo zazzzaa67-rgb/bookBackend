@@ -61,7 +61,7 @@ app.post('/api/chat' , async (req , res)=>{
     current mood : ${req.body.userMood}
     Preference : ${req.body.fun}`
 
-    const response = await groq.chat.completions.create({
+    const response =await groq.chat.completions.create({
         model : "llama-3.3-70b-versatile",
         temperature : .5,
         messages : [
@@ -72,11 +72,16 @@ app.post('/api/chat' , async (req , res)=>{
             content : userPrompt
             }
         ]
+
     }
 
     )
-    
-    res.json(JSON.parse(response.choices[0].message.content))
+    const books = JSON.parse(response.choices[0].message.content)
+    let bookImg = []
+    for(let  book of books){
+        bookImg += await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${book.title}`)
+    }
+    res.json(books ,bookImg )
     
 }catch(err){
     console.error(err)
