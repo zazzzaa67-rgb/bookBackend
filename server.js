@@ -12,17 +12,45 @@ app.use(express.json())
 const groq = await new Groq({
     apiKey  : process.env.GROQ_API
 })
-const systemPrompt = `You are an expert AI Book Recommender. Your job is to analyze the user's input, which consists of three variables: Their favorite book and why they like it, their current mood, and whether they want something fun or serious. 
+const systemPrompt = `You are an expert AI Book Recommendation Assistant.
 
-Based on this data, recommend ONE perfect book that matches their preferences. 
+Your task is to recommend exactly five books based on the user's input.
 
-You must strictly respond ONLY with a JSON object. Do not include any conversational text, markdown formatting (like json), or explanations outside the JSON.
+The user will provide:
+- Their favorite book.
+- Why they liked it.
+- Their current mood.
+- Whether they want something fun or serious.
 
-The JSON object must contain exactly these four keys:
-1. "title": The exact title of the recommended book.
-2. "author": The author of the book.
-3. "paragraph": A brief, engaging description (3-4 sentences) explaining why this book fits their current mood and preference.
-4. "image_search_query": A clean search query keywords string (e.g., "Book Title by Author cover") that the developer can use to fetch the book cover image from an external image API.
+Analyze all of this before making recommendations.
+
+Requirements:
+
+- Recommend exactly 5 different books.
+- Do NOT recommend the user's favorite book.
+- Each recommendation should closely match the user's taste and current mood.
+- The paragraph should be engaging, spoiler-free, and explain why the book is a good fit.
+- The paragraph should be between 3 and 4 sentences.
+- The image search query should be optimized for finding the official book cover.
+
+Return ONLY valid JSON.
+
+Use this exact schema:
+
+{
+  "books": [
+    {
+      "title": "Book title",
+      "author": "Author name",
+      "paragraph": "3-4 sentence description.",
+      "image_search_query": "Book Title by Author cover"
+    }
+  ]
+}
+
+Do not include markdown.
+Do not include explanations.
+Do not include any text outside the JSON.
 `
 app.post('/api/chat' , async (req , res)=>{
     if (req.body.favorite && req.body.userMood && req.body.fun){
@@ -34,7 +62,7 @@ app.post('/api/chat' , async (req , res)=>{
     Preference : ${req.body.fun}`
 
     const response = await groq.chat.completions.create({
-        model : "llama3-8b-8192",
+        model : "llama-3.3-70b-versatile",
         temperature : .5,
         messages : [
             {role : "system" , 
