@@ -43,7 +43,7 @@ Use this exact schema:
       "title": "Book title",
       "author": "Author name",
       "paragraph": "3-4 sentence description.",
-      "image_search_query": "Book Title by Author cover"
+      "image": "Book Title by Author cover"
     }
   ]
 }
@@ -76,13 +76,14 @@ app.post('/api/chat' , async (req , res)=>{
     }
 
     )
-    const books = JSON.parse(response.choices[0].message.content)
-    let bookImg = []
-    for(let  book of books){
-        bookImg += await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${book.title}`)
-    }
-    res.json(books ,bookImg )
+    const result = JSON.parse(response.choices[0].message.content)
     
+    for(let  book of result.books){
+        const response =  await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(book.title)}`)
+        const data = await response.json()
+        book.image =  data.items?.[0]?.volumeInfo?.imageLinks?.thumbnail ?? null;
+    }
+    res.json(result)
 }catch(err){
     console.error(err)
     res.status(500).json({
