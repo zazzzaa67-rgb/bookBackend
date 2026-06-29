@@ -1,7 +1,6 @@
 import Groq from "groq-sdk"
 import cors from 'cors'
 import dotenv from "dotenv"
-import {marked} from 'marked' 
 import express from 'express'
 dotenv.config()
 const app = express()
@@ -78,13 +77,30 @@ app.post('/api/chat' , async (req , res)=>{
     )
     const result = JSON.parse(response.choices[0].message.content)
     
-    for(let  book of result.books){
-        const bookRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(book.title + ' ' + book.author)}`)
+    for (let book of result.books) {
+    try {
+        const query = encodeURIComponent(`${book.title} ${book.author}`);
+        const bookRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=1`);
+        
+        if (!bookRes.ok) {
+            book.image = null;
+            continue;
+        }
 
-        const data = await bookRes.json()
-        console.log(JSON.stringify(data));
-        book.image =  data.items?.[0]?.volumeInfo?.imageLinks?.thumbnail ?? null;
+        const bookData = await bookRes.json();
+        const volumeInfo = bookData.items?.[0]?.volumeInfo;
+        
+        if (volumeInfo && volumeInfo.imageLinks) {
+            book.image = volumeInfo.imageLinks.thumbnail || volumeInfo.imageLinks.smallThumbnail || null;
+        } else {
+            book.image = null;
+        }
+
+    } catch (loopError) {
+        console.error("خطأ أثناء جلب صورة الكتاب:", book.title, loopError);
+        book.image = null; 
     }
+}
     res.json(result)
 }catch(err){
     console.error(err)
