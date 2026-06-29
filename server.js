@@ -79,8 +79,10 @@ app.post('/api/chat' , async (req , res)=>{
     const result = JSON.parse(response.choices[0].message.content)
     
     for(let  book of result.books){
-        const response =  await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(book.title)}`)
-        const data = await response.json()
+        const bookRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(book.title + ' ' + book.author)}`)
+
+        const data = await bookRes.json()
+        console.log(JSON.stringify(data));
         book.image =  data.items?.[0]?.volumeInfo?.imageLinks?.thumbnail ?? null;
     }
     res.json(result)
