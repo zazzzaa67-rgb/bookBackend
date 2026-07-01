@@ -89,6 +89,7 @@ app.post('/api/chat' , async (req , res)=>{
 
         const bookData = await bookRes.json();
         const volumeInfo = bookData.items?.[0]?.volumeInfo;
+        console.log(bookData)  
         
         if (volumeInfo && volumeInfo.imageLinks) {
             book.image = volumeInfo.imageLinks.thumbnail || volumeInfo.imageLinks.smallThumbnail || null;
