@@ -79,24 +79,14 @@ app.post('/api/chat' , async (req , res)=>{
     
     for (let book of result.books) {
     try {
-        const query = encodeURIComponent(`${book.title} ${book.author}`);
-        const bookRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=1`);
-        
-        if (!bookRes.ok) {
-            book.image = null;
-            continue;
-        }
-
-        const bookData = await bookRes.json();
-        const volumeInfo = bookData.items?.[0]?.volumeInfo;
-        console.log(bookData)  
-        
-        if (volumeInfo && volumeInfo.imageLinks) {
-            book.image = volumeInfo.imageLinks.thumbnail || volumeInfo.imageLinks.smallThumbnail || null;
-        } else {
+        const query = encodeURIComponent(`${book.title} ${book.author}`)
+        const res  = await fetch(`https://openlibrary.org/search.json?title=${encodeURIComponent(book.title)}&author=${encodeURIComponent(book.author)}&limit=1`)
+        const data = await res.json()
+        if(data.docs.length > 0 && data.docs[0].cover_i ){
+            book.image = `https://covers.openlibrary.org/b/id/${data.docs[0].cover_i}-L.jpg`;
+        }else{
             book.image = null;
         }
-
     } catch (loopError) {
         console.error("خطأ أثناء جلب صورة الكتاب:", book.title, loopError);
         book.image = null; 
